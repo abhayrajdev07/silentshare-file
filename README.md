@@ -36,3 +36,22 @@ SilentShare is an **offline messaging application** that enables communication b
 ---
 
 ## 🏗️ Project Structure
+
+
+---
+
+## 🚀 How It Works
+
+1. Create your profile (Name + Avatar)
+2. Choose:
+   - Create Session (Host)
+   - Join Session (Client)
+3. Connect via WiFi Direct
+4. Start chatting instantly
+
+---
+
+## ⚙️ Installation
+
+```bash
+git clone https://github.com/abhayrajdev07/silentshare.git
