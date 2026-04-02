@@ -8,11 +8,7 @@ SilentShare is an **offline messaging application** that enables communication b
 
 > Add your screenshots in a `screenshots` folder
 
-![Home Screen](screenshots/home.png)
-![Create Session](screenshots/create_session.png)
-![Chat Screen](screenshots/chat.png)
 
----
 
 ## ✨ Features
 
