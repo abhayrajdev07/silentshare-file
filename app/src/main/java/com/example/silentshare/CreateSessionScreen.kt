@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.silentshare.ui.theme.BlueGradient
 
 @Composable
 fun CreateSessionScreen(
@@ -30,54 +31,20 @@ fun CreateSessionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D0D0D))
-            .padding(20.dp)
+            .background(BlueGradient)
+            .padding(0.dp)
+            .statusBarsPadding(), // 🔥 THIS FIXES SYSTEM BAR VISIBILITY
+        verticalArrangement = Arrangement.Top
     ) {
 
+        // 🔥 TOP BAR (STICKS TO TOP)
+        TopBar(
+            userName = userName,
+            avatarUri = avatarUri,
+            onBack = onBack
+        )
 
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // 🔹 Top Section (Avatar + Name)
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            if (avatarUri != null) {
-                AsyncImage(
-                    model = avatarUri,
-                    contentDescription = "Avatar",
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("👤")
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = "Hii, $userName 👋",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.width(0.dp))
-
-            BackButton {
-                onBack() // we will pass this
-            }
-        }
-
+//
         Spacer(modifier = Modifier.weight(1f))
 
         // 🔹 Center Buttons
@@ -91,6 +58,12 @@ fun CreateSessionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp)
+                    .padding(horizontal = 20.dp), // 🔥 adds space left & right
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,      // 🔥 button background
+                    contentColor = Color.White         // 🔥 text color
+                )
             ) {
                 Text("Individual Chat")
             }
@@ -102,6 +75,11 @@ fun CreateSessionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp)
+                    .padding(horizontal = 20.dp), // 🔥 adds space left & right
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,      // 🔥 button background
+                    contentColor = Color.White         // 🔥 text color
+                )
             ) {
                 Text("Group Chat")
             }
@@ -113,6 +91,12 @@ fun CreateSessionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp)
+                    .padding(horizontal = 20.dp), // 🔥 adds space left & right
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,      // 🔥 button background
+                    contentColor = Color.White         // 🔥 text color
+                )
             ) {
                 Text("Broadcast Chat")
             }

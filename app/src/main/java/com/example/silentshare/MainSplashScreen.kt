@@ -25,11 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.silentshare.ui.theme.BlueGradient
 import kotlinx.coroutines.delay
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
 
 class MainSplashScreen : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 🔥 Enable full screen
+        enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             SplashScreenUI()

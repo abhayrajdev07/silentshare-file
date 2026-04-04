@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.silentshare.ui.theme.Blue
+import com.example.silentshare.ui.theme.BlueGradient
 
 @Composable
 fun ProfileScreen(
@@ -39,7 +42,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D0D0D))
+            .background(BlueGradient)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -81,14 +84,39 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(30.dp))
 
         // Name Input
+
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = {
+                if (it.length <= 15) {   // 🔥 limit to 15 chars
+                    name = it
+                }
+            },
             label = { Text("Enter your name") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
 
+                // ✨ TEXT COLOR (when typing)
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+
+                // ✨ CURSOR
+                cursorColor = Color.White,
+
+                // ✨ BORDER
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+
+                // ✨ LABEL
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.LightGray,
+
+                // ✨ PLACEHOLDER (optional)
+                focusedPlaceholderColor = Color.Gray,
+                unfocusedPlaceholderColor = Color.Gray
+            )
+        )
         Spacer(modifier = Modifier.height(30.dp))
 
         // Save Button
@@ -102,7 +130,11 @@ fun ProfileScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp)
+                .height(55.dp),
+                    colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,      // 🔥 button background
+            contentColor = Color.White         // 🔥 text color
+        )
         ) {
             Text("Save Profile")
         }
