@@ -70,29 +70,44 @@ fun AfterSplashScreen(innerPadding: PaddingValues = PaddingValues()) {
             .padding(innerPadding)
     ) {
 
-        // 🔹 HELP ICON (TOP RIGHT)
-        Box(
+// 🔹 HELP ICON + TEXT (TOP RIGHT)
+        Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 40.dp, end = 20.dp)
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.2f))
-                .border(
-                    width = 1.5.dp,
-                    color = Color.White,
-                    shape = CircleShape
-                )
-                .clickable {
-                    context.startActivity(Intent(context, GuideActivity::class.java))
-                },
-            contentAlignment = Alignment.Center
+                .padding(top = 40.dp, end = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo1),
-                contentDescription = "Help",
-                modifier = Modifier.size(28.dp),
-                contentScale = ContentScale.Fit
+
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(
+                        width = 1.5.dp,
+                        color = Color.White,
+                        shape = CircleShape
+                    )
+                    .clickable {
+                        context.startActivity(Intent(context, GuideActivity::class.java))
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.bookhelp),
+                    contentDescription = "Docs",
+                    modifier = Modifier.size(26.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "App Info",
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
             )
         }
 
