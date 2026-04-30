@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddModerator
-import androidx.compose.material.icons.filled.GroupAdd
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,87 +32,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.silentshare.ui.theme.BlueGradient
 
 @Composable
-fun HomeScreen(
+fun SessionTypeScreen(
     userName: String,
     avatarUri: Uri?,
-    onCreateSession: () -> Unit,
-    onJoinSession: () -> Unit,
+    onIndividualChat: () -> Unit,
+    onGroupChat: () -> Unit,
     onBack: () -> Unit
 ) {
     // Intercepts the system back gesture
-    BackHandler {
-        onBack()
-    }
+    BackHandler { onBack() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BlueGradient)
             .statusBarsPadding(),
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceBetween // Pushes top bar up and bottom card down
     ) {
 
-        // 🔥 MODERN HEADER (Greeting Left, Avatar Right)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Left Side: Personalized Greeting
-            Column {
-                Text(
-                    text = "Hi, $userName \uD83D\uDC4B", // Waving hand emoji for a friendly touch
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Ready to share?",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 14.sp
-                )
-            }
+        // 🔥 TOP BAR
+        TopBar(
+            userName = userName,
+            avatarUri = avatarUri,
+            onBack = onBack
+        )
 
-            // Right Side: Profile Picture
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f)), // Subtle frosted ring
-                contentAlignment = Alignment.Center
-            ) {
-                if (avatarUri != null) {
-                    AsyncImage(
-                        model = avatarUri,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier
-                            .size(48.dp) // Slightly smaller than the box to show the ring
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Default Profile",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-        }
-
-        // 🔹 HERO SECTION (Centered graphic & Welcome text)
+        // 🔹 HERO SECTION (Centered graphic & Text)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,7 +76,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.15f)),
+                    .background(Color.White.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -138,8 +87,8 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.WifiTethering,
-                        contentDescription = "Share Icon",
+                        imageVector = Icons.Default.Forum,
+                        contentDescription = "Chat Mode",
                         tint = Color(0xFF005C97), // Deep blue tint to match gradient vibe
                         modifier = Modifier.size(50.dp)
                     )
@@ -149,7 +98,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "SilentShare",
+                text = "Select Session Type",
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -158,7 +107,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Fast, secure, and offline sharing.",
+                text = "How would you like to connect?",
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 16.sp
             )
@@ -179,7 +128,7 @@ fun HomeScreen(
             ) {
 
                 Text(
-                    text = "Get Started",
+                    text = "Chat Options",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
                     color = Color.DarkGray,
@@ -188,50 +137,51 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // CREATE SESSION BUTTON
+                // INDIVIDUAL CHAT BUTTON
                 Button(
-                    onClick = onCreateSession,
+                    onClick = onIndividualChat,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(55.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(16.dp), // Modern rounded corners
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Black,
                         contentColor = Color.White
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AddModerator,
+                        imageVector = Icons.Default.Person,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Create Session", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Individual Chat", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // JOIN SESSION BUTTON
+                // GROUP CHAT BUTTON
                 Button(
-                    onClick = onJoinSession,
+                    onClick = onGroupChat,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(55.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF0F0F0),
-                        contentColor = Color.Black
+                        containerColor = Color(0xFFF0F0F0), // Light gray for secondary button
+                        contentColor = Color.Black          // Dark text
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.GroupAdd,
+                        imageVector = Icons.Default.Groups,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Join Session", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Group Chat", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
 
+                // Extra padding at the bottom for nav bar clearance
                 Spacer(modifier = Modifier.navigationBarsPadding())
             }
         }

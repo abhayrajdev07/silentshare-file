@@ -152,37 +152,56 @@ fun MessagingScreenKtor(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { filePicker.launch("*/*") }) {
-                Icon(
-                    Icons.Default.AttachFile,
-                    null
-                )
-            }
             TextField(
                 value = text,
                 onValueChange = { text = it },
-                placeholder = { Text("Type a Message..", color = Color.Gray) },
-                modifier = Modifier.weight(1f),
+                placeholder = { Text("Message", color = Color.Gray) },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp), // Adds spacing between the text field and the send button
                 shape = RoundedCornerShape(24.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     cursorColor = Color.Gray,
-                    focusedTextColor = Color.White,
+                    focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Gray
-                )
-            )
-            IconButton(onClick = {
-                if (text.isNotBlank()) {
-                    chatClient.sendMessage(text); messages.add(
-                        ChatMessage(
-                            text = text,
-                            isSentByMe = true
+                ),
+                // Place the attachment icon inside the TextField here
+                trailingIcon = {
+                    IconButton(onClick = { filePicker.launch("*/*") }) {
+                        Icon(
+                            imageVector = Icons.Default.AttachFile,
+                            contentDescription = "Attach File",
+                            tint = Color.Black // Matches the placeholder color for a clean look
                         )
-                    ); text = ""
+                    }
                 }
-            }, modifier = Modifier.background(Color(0xFF00A884), CircleShape)) {
-                Icon(Icons.AutoMirrored.Filled.Send, null, tint = Color.White)
+            )
+
+            // Send Button stays outside the TextField, just like WhatsApp
+            IconButton(
+                onClick = {
+                    if (text.isNotBlank()) {
+                        chatClient.sendMessage(text)
+                        messages.add(
+                            ChatMessage(
+                                text = text,
+                                isSentByMe = true
+                            )
+                        )
+                        text = ""
+                    }
+                },
+                modifier = Modifier
+                    .size(48.dp) // Keeps the circular send button perfectly round and sized
+                    .background(Color(0xFF00A884), CircleShape)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send",
+                    tint = Color.White
+                )
             }
         }
     }
@@ -209,7 +228,6 @@ fun ChatBubble(message: ChatMessage) {
                     val model = remember(message.fileUri) {
                         if (message.fileUri!!.startsWith("/")) File(message.fileUri!!) else message.fileUri!!.toUri()
                     }
-
                     Box(contentAlignment = Alignment.Center) {
                         AsyncImage(
                             model = model,

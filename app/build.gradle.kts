@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.silentshare"
-    compileSdk = 34 // Synced with your architecture overview
+    compileSdk = 35 // Synced with your architecture overview
 
     defaultConfig {
         applicationId = "com.example.silentshare"
         minSdk = 24
-        targetSdk = 34 // Synced with your architecture overview
+        targetSdk = 35 // Synced with your architecture overview
         versionCode = 1
         versionName = "1.0"
 
@@ -82,6 +82,8 @@ dependencies {
     // 🔥 OKHTTP (WEBSOCKET CLIENT)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation(libs.androidx.material3)
+
 
     // 🔹 Testing
     testImplementation(libs.junit)

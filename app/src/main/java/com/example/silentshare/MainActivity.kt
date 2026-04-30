@@ -14,14 +14,19 @@ class MainActivity : ComponentActivity() {
 
     private var isProfileCreated by mutableStateOf(false)
 
-    // 🔥 NEW STATE: For Session Type Selection (Individual/Group)
-    private var goToSessionTypeSelection by mutableStateOf(false)
-
-    private var goToConnectionSetup by mutableStateOf(false)
-    private var goToMessaging by mutableStateOf(false)
+    // 🔥 NAVIGATION STATES
+    private var goToSessionType by mutableStateOf(false)   // Selection Screen (Individual/Group)
+    private var goToGroupSetup by mutableStateOf(false)    // NEW: Group Name & Avatar Screen
+    private var goToCreateSession by mutableStateOf(false) // QR Code Screen (Host)
+    private var goToJoinSession by mutableStateOf(false)   // Scanner Screen (Client)
+    private var goToMessaging by mutableStateOf(false)     // Chat
 
     private var userName by mutableStateOf("")
     private var userAvatar by mutableStateOf<Uri?>(null)
+
+    // 🔥 GROUP DETAILS STATE (To pass into chat later if needed)
+    private var currentGroupName by mutableStateOf("")
+    private var currentGroupAvatar by mutableStateOf<Uri?>(null)
 
     // 🔥 KTOR STATE
     private var isServer by mutableStateOf(false)
@@ -43,68 +48,97 @@ class MainActivity : ComponentActivity() {
                             avatarUri = userAvatar,
                             serverIp = serverIp,
                             isServer = isServer,
-                            onBack = { goToMessaging = false }
-                        )
-                    }
-
-                    // 🔥 2. CONNECTION SCREEN
-                    goToConnectionSetup -> {
-                        ConnectionSetupKtorScreen(
-                            userName = userName,
-                            avatarUri = userAvatar,
-
-                            onCreateServer = {
-                                // 🛠️ FIX: Server ab pehle hi start ho chuka hai, yahan se bas chat me jao
-                                goToConnectionSetup = false
-                                goToMessaging = true
-                            },
-
-                            onJoinServer = { ip ->
-                                isServer = false
-                                serverIp = ip
-                                goToConnectionSetup = false
-                                goToMessaging = true
-                            },
-
                             onBack = {
-                                // 🛠️ FIX: Agar host back dabaye, toh server band kar do
-                                if (isServer) {
-                                    LocalServer.stopServer()
-                                }
-                                goToConnectionSetup = false
+                                goToMessaging = false
                             }
                         )
                     }
 
-                    // 🔥 3. CREATE SESSION SCREEN (Individual vs Group)
-                    goToSessionTypeSelection -> {
+                    // 🔥 2. QR CODE SCREEN (Host)
+                    goToCreateSession -> {
                         CreateSessionScreen(
                             userName = userName,
                             avatarUri = userAvatar,
-                            onIndividualChat = {
-                                // 🚀 THE MAGIC FIX: Jaise hi Host banne ka decide kiya, Server YAHIN start kar do!
-                                isServer = true
-                                serverIp = ""
-                                LocalServer.startServer() // 🔥 Server starts BEFORE showing QR code
-
-                                goToSessionTypeSelection = false
-                                goToConnectionSetup = true
+                            onCreateServer = {
+                                goToCreateSession = false
+                                goToMessaging = true
                             },
-                            onGroupChat = {
+                            onBack = {
+                                // Stop server and go back
+                                LocalServer.stopServer()
+                                goToCreateSession = false
+                                goToSessionType = true
+                            }
+                        )
+                    }
+
+                    // 🔥 3. GROUP SETUP SCREEN (Create Name & Photo)
+                    goToGroupSetup -> {
+                        GroupSetupScreen(
+                            userName = userName,
+                            avatarUri = userAvatar,
+                            onCreateGroup = { name, uri ->
+                                currentGroupName = name
+                                currentGroupAvatar = uri
+
+                                // Start Server NOW that group info is filled
                                 isServer = true
                                 serverIp = ""
                                 LocalServer.startServer()
 
-                                goToSessionTypeSelection = false
-                                goToConnectionSetup = true
+                                goToGroupSetup = false
+                                goToCreateSession = true // Move to QR Code Screen
                             },
                             onBack = {
-                                goToSessionTypeSelection = false
+                                goToGroupSetup = false
+                                goToSessionType = true
                             }
                         )
                     }
 
-                    // 🔥 4. PROFILE
+                    // 🔥 4. SESSION TYPE SELECTION (Individual/Group)
+                    goToSessionType -> {
+                        SessionTypeScreen(
+                            userName = userName,
+                            avatarUri = userAvatar,
+                            onIndividualChat = {
+                                // Individual Chat goes straight to QR Code
+                                isServer = true
+                                serverIp = ""
+                                LocalServer.startServer()
+
+                                goToSessionType = false
+                                goToCreateSession = true
+                            },
+                            onGroupChat = {
+                                // Group Chat routes to Group Setup Screen FIRST
+                                goToSessionType = false
+                                goToGroupSetup = true
+                            },
+                            onBack = {
+                                goToSessionType = false
+                            }
+                        )
+                    }
+
+                    // 🔥 5. JOIN SESSION SCREEN (CLIENT)
+                    goToJoinSession -> {
+                        JoinSessionScreen(
+                            userName = userName,
+                            avatarUri = userAvatar,
+                            onJoinServer = { ip ->
+                                isServer = false
+                                serverIp = ip
+                                goToJoinSession = false
+                                goToMessaging = true
+                            },
+                            onBack = {
+                                goToJoinSession = false
+                            }
+                        )
+                    }
+
+                    // 🔥 6. PROFILE
                     !isProfileCreated -> {
                         ProfileScreen { name, imageUri ->
                             userName = name
@@ -113,21 +147,17 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // 🔥 5. HOME
+                    // 🔥 7. HOME
                     else -> {
                         HomeScreen(
                             userName = userName,
                             avatarUri = userAvatar,
-
                             onCreateSession = {
-                                // 🔥 CHANGED: Ab sidha connection pe nahi, pehle 'Type Selection' screen par jayega
-                                goToSessionTypeSelection = true
+                                goToSessionType = true
                             },
-
                             onJoinSession = {
-                                goToConnectionSetup = true
+                                goToJoinSession = true
                             },
-
                             onBack = {}
                         )
                     }
