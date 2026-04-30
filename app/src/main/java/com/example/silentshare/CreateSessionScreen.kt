@@ -1,6 +1,7 @@
 package com.example.silentshare
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,11 @@ fun CreateSessionScreen(
     onGroupChat: () -> Unit,
     onBack: () -> Unit
 ) {
+
+    // Intercepts the system back gesture and calls your navigation logic
+    BackHandler {
+        onBack()
+    }
 
     Column(
         modifier = Modifier

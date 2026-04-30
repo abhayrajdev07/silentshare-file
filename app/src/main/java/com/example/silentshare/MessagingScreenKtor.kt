@@ -2,6 +2,7 @@ package com.example.silentshare
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -62,6 +63,10 @@ fun MessagingScreenKtor(
     isServer: Boolean,
     onBack: () -> Unit
 ) {
+    // Intercepts the system back gesture and calls your navigation logic
+    BackHandler {
+        onBack()
+    }
     val messages = remember { mutableStateListOf<ChatMessage>() }
     var text by remember { mutableStateOf("") }
     val chatClient = remember { ChatClient() }

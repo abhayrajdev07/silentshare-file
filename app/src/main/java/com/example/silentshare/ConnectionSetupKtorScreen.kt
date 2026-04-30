@@ -1,6 +1,7 @@
 package com.example.silentshare
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +45,11 @@ fun ConnectionSetupKtorScreen(
     onJoinServer: (String) -> Unit,
     onBack: () -> Unit
 ) {
+
+    // Intercepts the system back gesture and calls your navigation logic
+    BackHandler {
+        onBack()
+    }
 
 
     // 🔥 Auto-fetch Host IP

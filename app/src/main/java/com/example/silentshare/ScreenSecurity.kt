@@ -3,7 +3,6 @@ package com.example.silentshare
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import android.view.WindowManager
 
 class ScreenSecurity : Application() {
 
@@ -15,10 +14,10 @@ class ScreenSecurity : Application() {
 
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 // Screenshot aur screen recording block karne ke liye FLAG_SECURE apply karein
-                activity.window.setFlags(
-                    WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE
-                )
+//                activity.window.setFlags(
+//                    WindowManager.LayoutParams.FLAG_SECURE,
+//                    WindowManager.LayoutParams.FLAG_SECURE
+//                )
             }
 
             // Interface ke baaki methods implement karna zaroori hai, par hum inhe khali chhod sakte hain
