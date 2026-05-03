@@ -113,57 +113,66 @@ fun MessagingScreenKtor(
     }
 
     // ── File picker ──────────────────────────────────────────────────────────
+// ── File picker ──────────────────────────────────────────────────────────
     val filePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
             val type = context.contentResolver.getType(it) ?: ""
             val cat = when {
-                type.contains("image") -> "image"
-                type.contains("video") -> "video"
-                else -> "file"
+                type.contains("image") -> MessageType.IMAGE
+                type.contains("video") -> MessageType.VIDEO
+                else -> MessageType.FILE
             }
             messages.add(
                 ChatMessage(
-                    text = "Sending…",
+                    text = null, // ✅ FIX: no "Sending..."
                     fileUri = it.toString(),
                     fileType = cat,
                     isSentByMe = true,
                     status = MessageStatus.SENDING
                 )
             )
-            scope.launch { chatClient.sendFile(it, context, cat) }
+            scope.launch { chatClient.sendFile(it, context, cat.name.lowercase()) }
         }
     }
 
-    // ── Network events ───────────────────────────────────────────────────────
+// ── Network events ───────────────────────────────────────────────────────
     LaunchedEffect(isServer, serverIp) {
         chatClient.connectToServer(if (isServer) "127.0.0.1" else serverIp)
+
         chatClient.incomingMessages.collect { msg ->
             val parts = msg.split("|")
-            if (parts.size >= 3) {
-                val (category, uri, fileName) = parts
-                val isMyMessage = uri.startsWith("content://")
-                val existingIdx = messages.indexOfLast { it.isSentByMe && it.text == "Sending…" }
 
-                if (isMyMessage && existingIdx != -1) {
-                    messages[existingIdx] = messages[existingIdx].copy(
+            if (parts.size >= 3) {
+                val (categoryStr, base64, fileName) = parts
+
+                val category = when (categoryStr) {
+                    "image" -> MessageType.IMAGE
+                    "video" -> MessageType.VIDEO
+                    else -> MessageType.FILE
+                }
+
+                val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+
+                val file = File(context.cacheDir, fileName)
+                file.writeBytes(bytes)
+
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                ).toString()
+
+                messages.add(
+                    ChatMessage(
                         fileType = category,
                         fileUri = uri,
-                        text = fileName,
-                        status = MessageStatus.SENT
+                        text = null,
+                        isSentByMe = false,
+                        status = MessageStatus.DELIVERED
                     )
-                } else if (!isMyMessage) {
-                    messages.add(
-                        ChatMessage(
-                            fileType = category,
-                            fileUri = uri,
-                            text = fileName,
-                            isSentByMe = false,
-                            status = MessageStatus.DELIVERED
-                        )
-                    )
-                }
+                )
             } else {
                 messages.add(
                     ChatMessage(
@@ -175,6 +184,7 @@ fun MessagingScreenKtor(
             }
         }
     }
+
 
     // ── Root layout ──────────────────────────────────────────────────────────
     Column(
@@ -402,13 +412,18 @@ fun ChatBubble(message: ChatMessage) {
             Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
 
                 // ── Media / text content ─────────────────────────────────────
-                if ((message.fileType == "image" || message.fileType == "video") && message.fileUri != null) {
+                // ── Chat Bubble FIX ─────────────────────────────────────────────────────
+                if ((message.fileType == MessageType.IMAGE || message.fileType == MessageType.FILE)
+                    && !message.fileUri.isNullOrEmpty()
+                ) {
+
                     val model = remember(message.fileUri) {
-                        if (message.fileUri.startsWith("/"))
+                        if (message.fileUri!!.startsWith("/"))
                             File(message.fileUri)
                         else
                             message.fileUri.toUri()
                     }
+
                     Box(contentAlignment = Alignment.Center) {
                         AsyncImage(
                             model = model,
@@ -424,7 +439,7 @@ fun ChatBubble(message: ChatMessage) {
                                                 if (model is File) Uri.fromFile(model) else model as Uri
                                             setDataAndType(
                                                 uri,
-                                                if (message.fileType == "image") "image/*" else "video/*"
+                                                if (message.fileType == MessageType.IMAGE) "image/*" else "video/*"
                                             )
                                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                         }
@@ -435,7 +450,7 @@ fun ChatBubble(message: ChatMessage) {
                                 },
                             contentScale = ContentScale.Crop
                         )
-                        if (message.fileType == "video") {
+                        if (message.fileType == MessageType.VIDEO) {
                             Icon(
                                 Icons.Default.PlayCircle,
                                 contentDescription = null,
@@ -444,16 +459,7 @@ fun ChatBubble(message: ChatMessage) {
                             )
                         }
                     }
-                    Spacer(Modifier.height(4.dp))
-                    message.text?.let {
-                        if (it != "Sending…") {
-                            Text(
-                                text = it,
-                                fontSize = 13.sp,
-                                color = Color(0xFF374151)
-                            )
-                        }
-                    }
+
                 } else {
                     message.text?.let {
                         Text(

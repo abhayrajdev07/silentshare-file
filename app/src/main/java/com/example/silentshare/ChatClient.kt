@@ -8,11 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 
@@ -35,36 +32,26 @@ class ChatClient {
     }
 
     fun sendFile(uri: Uri, context: Context, category: String) {
-        val serverIp = currentServerIp ?: return
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val fileName = getFileName(uri, context)
                 val inputStream = context.contentResolver.openInputStream(uri)
                 val bytes = inputStream?.readBytes() ?: return@launch
                 inputStream.close()
 
-                val body = MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart(
-                        "file",
-                        fileName,
-                        bytes.toRequestBody("application/octet-stream".toMediaTypeOrNull())
-                    )
-                    .addFormDataPart("category", category)
-                    .build()
+                val fileName = getFileName(uri, context)
 
-                val request =
-                    Request.Builder().url("http://$serverIp:8080/upload").post(body).build()
-                client.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        // Notify others: category|uri|fileName
-                        sendMessage("$category|$uri|$fileName")
-                    }
-                }
+                // 👇 Convert to Base64 (offline safe)
+                val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+
+                // 👇 Send actual data (NOT URI)
+                sendMessage("$category|$base64|$fileName")
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
 
     private fun getFileName(uri: Uri, context: Context): String {
         var name = "file_${System.currentTimeMillis()}"

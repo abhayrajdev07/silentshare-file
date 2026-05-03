@@ -30,8 +30,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -41,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.silentshare.ui.theme.BlueGradient
 
+
 @Composable
 fun HomeScreen(
     userName: String,
@@ -49,6 +57,36 @@ fun HomeScreen(
     onJoinSession: () -> Unit,
     onBack: () -> Unit
 ) {
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        showDialog = true
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BlueGradient)
+                .blur(if (showDialog) 52.dp else 0.dp) // 🔥 BLUR HERE
+                .alpha(if (showDialog) 0.5f else 1f)
+                .statusBarsPadding(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // 🔥 YOUR EXISTING UI (NO CHANGE)
+        }
+
+        // 🔥 POPUP
+        if (showDialog) {
+            OfflineModeDialog(
+                onDismiss = { showDialog = false },
+                onDontShowAgain = { showDialog = false }
+            )
+        }
+    }
     // Intercepts the system back gesture
     BackHandler {
         onBack()

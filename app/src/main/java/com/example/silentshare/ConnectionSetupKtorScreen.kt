@@ -45,13 +45,11 @@ fun ConnectionSetupKtorScreen(
     onJoinServer: (String) -> Unit,
     onBack: () -> Unit
 ) {
-
     // Intercepts the system back gesture and calls your navigation logic
     BackHandler {
         onBack()
     }
-
-
+    
     // 🔥 Auto-fetch Host IP
     val myIpAddress = remember { NetworkUtils.getLocalIpAddress() }
     val qrBitmap = rememberQrBitmap(text = myIpAddress)
