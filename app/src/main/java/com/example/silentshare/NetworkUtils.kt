@@ -1,6 +1,8 @@
 package com.example.silentshare
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 
 object NetworkUtils {
@@ -48,4 +50,19 @@ object NetworkUtils {
         }
         return "192.168.43.1"
     }
+}
+
+// Mobile data check code
+
+fun isMobileDataOn(context: Context): Boolean {
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    val networks = cm.allNetworks
+    for (network in networks) {
+        val caps = cm.getNetworkCapabilities(network)
+        if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            return true
+        }
+    }
+    return false
 }

@@ -78,7 +78,10 @@ fun CreateSessionScreen(
                         onClick = onCreateServer,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                     ) {
-                        Text("Start Chat as Host")
+                        Text(
+                            text = "Start Chat as Host",
+                            color = Color.White
+                        )
                     }
                 }
             }

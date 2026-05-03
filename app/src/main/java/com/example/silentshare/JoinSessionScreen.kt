@@ -2,7 +2,6 @@ package com.example.silentshare
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -63,8 +63,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
 
 // ── Color Palette ──────────────────────────────────────────────────────────────
 private val BgDark = Color(0xFF0A0E1A)
@@ -86,6 +84,7 @@ val GlowBrush = Brush.radialGradient(
     radius = 420f
 )
 
+
 @Composable
 fun JoinSessionScreen(
     userName: String,
@@ -96,6 +95,7 @@ fun JoinSessionScreen(
     BackHandler { onBack() }
 
     val context = LocalContext.current
+    var showScanner by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val gatewayIp = remember { NetworkUtils.getGatewayIp(context) }
     var ipInput by remember { mutableStateOf(gatewayIp) }
@@ -117,10 +117,7 @@ fun JoinSessionScreen(
         ), label = "glow"
     )
 
-    val barcodeLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
-        scanning = false
-        if (result.contents != null) onJoinServer(result.contents)
-    }
+
 
     Box(
         modifier = Modifier
@@ -228,12 +225,12 @@ fun JoinSessionScreen(
             // ── QR Scan Card ─────────────────────────────────────────────
             Box(
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(180.dp)
                     .scale(pulseScale)
                     .drawBehind {
                         drawCircle(
                             color = AccentCyan.copy(alpha = glowAlpha),
-                            radius = size.minDimension * 0.62f,
+                            radius = size.minDimension * 0.64f,
                             center = center
                         )
                     }
@@ -242,62 +239,78 @@ fun JoinSessionScreen(
                     .border(
                         width = 1.5.dp,
                         brush = Brush.linearGradient(
-                            listOf(AccentCyan.copy(alpha = 0.6f), AccentPurple.copy(alpha = 0.4f))
+                            listOf(
+                                AccentCyan.copy(alpha = 0.6f),
+                                AccentPurple.copy(alpha = 0.4f)
+                            )
                         ),
                         shape = RoundedCornerShape(28.dp)
                     )
                     .clickable {
-                        scanning = true
-                        val options = ScanOptions().apply {
-                            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                            setPrompt("Scan the Host's QR Code")
-                            setCameraId(0)
-                            setBeepEnabled(true)
-                            setBarcodeImageEnabled(true)
-                        }
-                        barcodeLauncher.launch(options)
+                        showScanner = true
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // QR Icon
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.radialGradient(
-                                    listOf(AccentCyan.copy(0.25f), Color.Transparent)
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+
+                if (showScanner) {
+
+                    // 🔥 EMBEDDED CAMERA
+                    QrScannerView(
+                        modifier = Modifier.fillMaxSize(),
+                        onResult = { result ->
+                            showScanner = false
+                            onJoinServer(result)
+                        }
+                    )
+
+                    // 🔥 Optional overlay (corner accents)
+                    CornerAccents()
+
+                } else {
+
+                    // 🔥 Default UI (before scanning)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.CameraAlt,
-                            contentDescription = null,
-                            tint = AccentCyan,
-                            modifier = Modifier.size(32.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.radialGradient(
+                                        listOf(
+                                            AccentCyan.copy(0.25f),
+                                            Color.Transparent
+                                        )
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.CameraAlt,
+                                contentDescription = null,
+                                tint = AccentCyan,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+
+                        Text(
+                            "Scan QR Code",
+                            color = TextPrimary,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        Text(
+                            "Tap to open scanner",
+                            color = TextMuted,
+                            fontSize = 12.sp
                         )
                     }
-                    Text(
-                        "Scan QR Code",
-                        color = TextPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 0.2.sp
-                    )
-                    Text(
-                        "Tap to open scanner",
-                        color = TextMuted,
-                        fontSize = 12.sp
-                    )
-                }
 
-                // Corner accents
-                CornerAccents()
+                    CornerAccents()
+                }
             }
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -333,6 +346,7 @@ fun JoinSessionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
+                    .imePadding()
                     .clip(RoundedCornerShape(20.dp))
                     .background(Surface1)
                     .border(
@@ -482,27 +496,35 @@ private fun CornerAccents() {
     // Top-left
     Box(modifier = Modifier.fillMaxSize()) {
         // TL horizontal
-        Box(Modifier
-            .size(len, stroke)
-            .offset(pad, pad)
-            .background(color)
-            .align(Alignment.TopStart))
-        Box(Modifier
-            .size(stroke, len)
-            .offset(pad, pad)
-            .background(color)
-            .align(Alignment.TopStart))
+        Box(
+            Modifier
+                .size(len, stroke)
+                .offset(pad, pad)
+                .background(color)
+                .align(Alignment.TopStart)
+        )
+        Box(
+            Modifier
+                .size(stroke, len)
+                .offset(pad, pad)
+                .background(color)
+                .align(Alignment.TopStart)
+        )
         // TR
-        Box(Modifier
-            .size(len, stroke)
-            .offset(-pad, pad)
-            .align(Alignment.TopEnd)
-            .background(color))
-        Box(Modifier
-            .size(stroke, len)
-            .offset(-pad, pad)
-            .align(Alignment.TopEnd)
-            .background(color))
+        Box(
+            Modifier
+                .size(len, stroke)
+                .offset(-pad, pad)
+                .align(Alignment.TopEnd)
+                .background(color)
+        )
+        Box(
+            Modifier
+                .size(stroke, len)
+                .offset(-pad, pad)
+                .align(Alignment.TopEnd)
+                .background(color)
+        )
         // BL
         Box(
             Modifier

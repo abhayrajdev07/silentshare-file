@@ -166,7 +166,8 @@ fun HomeScreen(
 
         // 🔥 BOTTOM ACTION CARD
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -221,6 +222,8 @@ fun HomeScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF0F0F0),
                         contentColor = Color.Black
+//                        containerColor = Color.Green,
+//                        contentColor = Color.Black
                     )
                 ) {
                     Icon(

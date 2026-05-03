@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -159,7 +160,9 @@ fun ProfileScreen(
 
         // 🔥 BOTTOM ACTION CARD (Form)
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .imePadding(),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -184,24 +187,35 @@ fun ProfileScreen(
                 OutlinedTextField(
                     value = name,
                     onValueChange = {
-                        if (it.length <= 15) name = it // Limit to 15 chars
+                        if (it.length <= 15) name = it
                     },
                     label = { Text("Enter your name") },
                     placeholder = { Text("e.g. Shrey") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp), // Modern rounded text field
+                    shape = RoundedCornerShape(16.dp),
+
                     colors = OutlinedTextFieldDefaults.colors(
+                        // 🔥 TEXT COLOR FIX
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+
+                        // Borders
                         focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.LightGray,
+                        unfocusedBorderColor = Color.Black,
+
+                        // Label
                         focusedLabelColor = Color.Black,
+                        unfocusedLabelColor = Color.Gray,
+
+                        // Cursor
                         cursorColor = Color.Black
                     ),
-                    // Adds a dynamic character counter inside the text field
+
                     trailingIcon = {
                         Text(
                             text = "${name.length}/15",
-                            color = Color.Gray,
+                            color = Color.Black,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(end = 12.dp)
                         )

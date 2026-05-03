@@ -1,6 +1,6 @@
 package com.example.silentshare
 
-import android.content.Intent
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,17 +25,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,26 +65,60 @@ class GuideActivityNow : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🔥 Modern Edge-to-Edge handling
         enableEdgeToEdge()
 
         setContent {
             SilentShareTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent
-                ) { innerPadding ->
-                    GuideScreen(
-                        innerPadding = innerPadding,
-                        onClose = {
-                            // Safely start AfterSplash and finish this activity
-                            startActivity(Intent(this@GuideActivityNow, AfterSplash::class.java))
-                            finish()
-                        }
-                    )
-                }
+                // 🔥 IMPORTANT: CALL AFTER SPLASH SCREEN HERE
+                AfterSplashScreen()
             }
         }
+    }
+}
+
+@Composable
+fun AfterSplashScreen() {
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    // 🔥 CONTINUOUS CHECK (SMOOTH + LIGHT)
+    LaunchedEffect(Unit) {
+        while (true) {
+            showDialog = isMobileDataOn(context)
+            kotlinx.coroutines.delay(1000)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        // 🔥 YOUR MAIN APP UI
+        MainScreenUI()
+
+        // 🔥 POPUP (ALWAYS ON TOP)
+        if (showDialog) {
+            MobileDataWarningDialog(
+                onExit = {
+                    (context as? Activity)?.finishAffinity()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun MainScreenUI() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "SilentShare Home",
+            color = Color.White,
+            fontSize = 18.sp
+        )
     }
 }
 
@@ -89,94 +127,126 @@ fun GuideScreen(
     innerPadding: PaddingValues = PaddingValues(),
     onClose: () -> Unit
 ) {
+
+    // ✅ ONLY SCROLL STATE (lightweight)
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            // 🔹 Modern Gradient Background matching the rest of the app
             .background(Brush.verticalGradient(listOf(Surface1, BgDark)))
             .padding(innerPadding)
     ) {
-        // 1️⃣ SCROLLABLE CONTENT (Placed first to be the bottom layer)
+
+        // 🔥 FIXED HEADER
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .padding(top = 80.dp) // Added extra top padding so header doesn't hide under the button
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start
+                .fillMaxWidth()
+                .align(Alignment.TopStart)
+                .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
-
-            // 🔹 HEADER
             Text(
-                text = "Documentation",
+                text = "How SilentShare Works",
                 style = TextStyle(
                     brush = Brush.linearGradient(listOf(AccentCyan, AccentBlue)),
-                    fontSize = 32.sp,
+                    fontSize = 23.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
-                text = "Everything you need to know about SilentShare.",
+                text = "Fast, secure and completely offline \nfile sharing experience.",
                 color = TextMuted,
-                fontSize = 16.sp
+                fontSize = 11.sp
             )
+        }
 
-            Spacer(modifier = Modifier.height(40.dp))
+        // 🔥 SCROLLABLE CONTENT (SMOOTH NOW)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 120.dp)
+                .padding(horizontal = 24.dp)
+                .verticalScroll(scrollState)
+        ) {
 
-            // 🔹 DOC SECTIONS
+            Spacer(modifier = Modifier.height(20.dp))
+
             GuideSection(
-                title = "SilentShare",
+                title = "What is SilentShare",
                 icon = Icons.Default.MenuBook,
                 points = listOf(
-                    "Secure offline messaging",
-                    "Works without internet",
-                    "Fast peer-to-peer connection",
-                    "Simple and easy to use"
+                    "SilentShare enables instant file and message transfer without internet",
+                    "Built for speed, privacy, and real-world offline usage",
+                    "Works seamlessly between nearby devices",
+                    "No login, no cloud, no delay"
                 )
             )
 
             GuideSection(
-                title = "Privacy First",
+                title = "How to Use",
+                icon = Icons.Default.CheckCircle,
+                points = listOf(
+                    "Open SilentShare on both devices",
+                    "Ensure WiFi or wireless connection is enabled",
+                    "Select the file or message you want to send",
+                    "Connect to the nearby device instantly",
+                    "Transfer completes securely within seconds"
+                )
+            )
+
+            GuideSection(
+                title = "Privacy & Security",
                 icon = Icons.Default.Security,
                 points = listOf(
-                    "No data tracking",
-                    "No cloud storage",
-                    "End-to-end secure transfer",
-                    "Your data stays on your device"
+                    "No internet means zero tracking or data leaks",
+                    "End-to-end secure peer-to-peer transfer",
+                    "No cloud storage or third-party servers involved",
+                    "Your data always stays on your device"
                 )
             )
 
             GuideSection(
-                title = "Offline Messaging",
+                title = "Offline Technology",
                 icon = Icons.Default.WifiOff,
                 points = listOf(
-                    "No internet required",
-                    "Uses WiFi Direct internally",
-                    "Instant device connection",
-                    "Perfect for emergencies"
+                    "Uses advanced peer-to-peer connectivity",
+                    "Works even in zero network environments",
+                    "Instant device discovery and connection",
+                    "Ideal for emergencies and remote areas"
+                )
+            )
+
+            GuideSection(
+                title = "Requirements",
+                icon = Icons.Default.CheckCircle,
+                points = listOf(
+                    "Both devices must have SilentShare installed",
+                    "Devices should be within nearby range",
+                    "WiFi or wireless connectivity must be enabled",
+                    "Permissions for file access may be required"
                 )
             )
 
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-        // 2️⃣ CLOSE BUTTON (Placed last to be the top layer)
+        // 🔥 CLOSE BUTTON
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 24.dp, end = 24.dp)
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(Surface2.copy(alpha = 0.8f)) // Increased opacity for better visibility
-                .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
-                .clickable {
-                    onClose() // 🔥 Now this will trigger properly
-                },
+                .background(Surface2.copy(alpha = 0.8f))
+                .border(1.dp, Color.White.copy(alpha = 0.9f), CircleShape)
+                .clickable { onClose() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                imageVector = Icons.Default.ArrowBackIosNew,
                 contentDescription = "Close",
                 tint = TextPrimary,
                 modifier = Modifier.size(20.dp)

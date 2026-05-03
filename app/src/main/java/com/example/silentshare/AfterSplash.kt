@@ -82,6 +82,7 @@ fun AfterSplashScreen(innerPadding: PaddingValues = PaddingValues()) {
             .fillMaxSize()
             // 🔹 Modern Gradient Background
             .background(Brush.verticalGradient(listOf(Surface1, BgDark)))
+//            .background(Color.Black)
             .padding(innerPadding)
     ) {
 
@@ -123,10 +124,10 @@ fun AfterSplashScreen(innerPadding: PaddingValues = PaddingValues()) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp) // Added horizontal padding for breathing room
-                .padding(top = 100.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = 50.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
             // Beautifully styled logo with a soft shadow
             Image(
                 painter = painterResource(id = R.drawable.logoss1),
@@ -175,7 +176,7 @@ fun AfterSplashScreen(innerPadding: PaddingValues = PaddingValues()) {
                 lineHeight = 22.sp
             )
 
-            Spacer(modifier = Modifier.height(90.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
             // ── Get Started button ────────────────────────────────────────
             Button(

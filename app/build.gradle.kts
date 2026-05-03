@@ -76,6 +76,7 @@ dependencies {
     // 🔥 KTOR SERVER (LAN CHAT BACKEND)
     implementation("io.ktor:ktor-server-core:2.3.8")
     implementation("io.ktor:ktor-server-cio:2.3.8")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("io.ktor:ktor-server-websockets:2.3.8")
     implementation("org.slf4j:slf4j-android:1.7.36") // Required to prevent Ktor crash on launch
 
