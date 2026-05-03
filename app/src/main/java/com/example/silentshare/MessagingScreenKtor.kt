@@ -33,9 +33,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,11 +119,7 @@ fun MessagingScreenKtor(
     ) { uri ->
         uri?.let {
             val type = context.contentResolver.getType(it) ?: ""
-            val cat = when {
-                type.contains("image") -> MessageType.IMAGE
-                type.contains("video") -> MessageType.VIDEO
-                else -> MessageType.FILE
-            }
+            val cat = MessageType.IMAGE
             messages.add(
                 ChatMessage(
                     text = null, // ✅ FIX: no "Sending..."
@@ -220,7 +216,7 @@ fun MessagingScreenKtor(
         ModernInputBar(
             text = text,
             onTextChange = { text = it },
-            onAttach = { filePicker.launch("*/*") },
+            onAttach = { filePicker.launch("image/*") },
             onSend = {
                 if (text.isNotBlank()) {
                     chatClient.sendMessage(text)
@@ -350,7 +346,7 @@ private fun ModernInputBar(
                 )
                 IconButton(onClick = onAttach) {
                     Icon(
-                        Icons.Default.AttachFile,
+                        Icons.Default.Image,
                         contentDescription = "Attach",
                         tint = Color(0xFF6B7280)
                     )
@@ -413,8 +409,7 @@ fun ChatBubble(message: ChatMessage) {
 
                 // ── Media / text content ─────────────────────────────────────
                 // ── Chat Bubble FIX ─────────────────────────────────────────────────────
-                if ((message.fileType == MessageType.IMAGE || message.fileType == MessageType.FILE)
-                    && !message.fileUri.isNullOrEmpty()
+                if (message.fileType == MessageType.IMAGE && !message.fileUri.isNullOrEmpty()
                 ) {
 
                     val model = remember(message.fileUri) {
